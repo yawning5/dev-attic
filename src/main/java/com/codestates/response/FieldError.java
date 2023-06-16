@@ -4,10 +4,10 @@ import lombok.Getter;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Error 인터페이스를 implements함으로써 Error Response의 필드가 공통화 됨.
+ * Error.from(..)을 이용함으로써 에러 정보 추출이 공통화 됨.
  */
 @Getter
 public class FieldError implements Error{
@@ -22,15 +22,13 @@ public class FieldError implements Error{
     }
 
     public static List<Error> of(BindingResult bindingResult) {
-        final List<org.springframework.validation.FieldError> fieldErrors =
-                bindingResult.getFieldErrors();
-        // TODO Convert 공통화
-        return fieldErrors.stream()
-                .map(error -> new FieldError(
-                        error.getField(),
-                        error.getRejectedValue() == null ?
-                                "" : error.getRejectedValue().toString(),
-                        error.getDefaultMessage()))
-                .collect(Collectors.toList());
+        final List<org.springframework.validation.FieldError> fieldErrors = bindingResult.getFieldErrors();
+
+        return Error.from(fieldErrors,
+                            error -> new FieldError(
+                                            error.getField(),
+                                            error.getRejectedValue() == null ?
+                                                    "" : error.getRejectedValue().toString(),
+                                            error.getDefaultMessage()));
     }
 }
