@@ -8,6 +8,7 @@ import com.codestates.coffee.service.CoffeeService;
 import com.codestates.response.MultiResponseDto;
 import com.codestates.response.SingleResponseDto;
 import com.codestates.utils.UriCreator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/v11/coffees")
 @Validated

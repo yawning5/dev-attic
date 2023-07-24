@@ -45,3 +45,7 @@ tasks.named('javadoc') {
 	options.memberLevel = JavadocMemberLevel.PRIVATE
 	destinationDir = file("build/docs/javadoc")
 }
+
+tasks.bootJar {
+	archiveFileName.set("performance-sample-basic.jar")
+}
