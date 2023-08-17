@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-public class JwtTokenizer { // jwt 생성하는 클래스
+public class JwtTokenizer { // jwt 생성 및 검증하는 클래스
 
     // JWT의 서명에 사용할 Secret Key를 생성
     private Key getKeyFromBase64EncodedKey(String base64EncodedSecretKey) {
