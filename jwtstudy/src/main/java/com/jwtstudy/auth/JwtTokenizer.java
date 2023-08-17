@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-public class JwtTokenizer { // jwt를 생성하고 검증하는 역할
+public class JwtTokenizer { // jwt 생성하는 클래스
 
     // Plain Text의 secretKey를 Base64로 암호화
     public String encodedBase64SecretKey(String secretKey) {
@@ -64,5 +64,14 @@ public class JwtTokenizer { // jwt를 생성하고 검증하는 역할
         Key key = Keys.hmacShaKeyFor(keyBytes);
 
         return key;
+    }
+
+    public void verifySignature(String jws, String base64EncodedSecretkey) {
+        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretkey);
+
+        Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(jws);
     }
 }
