@@ -76,16 +76,20 @@ public class JwtTokenizer { // jwt 생성 및 검증하는 클래스
         Key key = getKeyFromBase64EncodedKey(base64EncodedSecretkey);
 
         Jwts.parserBuilder()
-                // 서명에 사용된 Secret Key 설정
+                // 검증에 사용될 Secret Key 설정
                 // key는 jwt가 생성될 때 사용된 것과 동일한 키여야함
-                // 다른 키면 검증 실패
+                // 다른 키면 parseClaimsJws 단계에서 검증 실패
                 .setSigningKey(key)
-                // 설정된 정보를 바탕으로 실제 jwt를 파싱하는 객체 생성
+                // 설정된 정보를 바탕으로 jwt파서 객체 생성
+                // jwt 파서 객체란?
+                // jwt 문자열을 해석하고 그 구조를 분석해서 jwt의 클레임이나
+                // 다른 부분들을 추출하거나 jwt의 유효성을 검증하는 역할을 함
+                // 파서는 주어진 데이터나 문서를 해석하고, 그 구조를 분석하는 역할을 하는 객체나 도구
                 .build()
                 // jwt를 파싱해서 claims를 얻는다(jwt의 페이로드 부분)
-                // parseClaimsJws(jws) 호출 과정에서 내부적으로 JWT의 시그니처를 검증하게 됩니다.
-                // 이때, 앞서 설정된 비밀키 .setSigningKey(key)가 사용됩니다.
-                // 시그니처 잘못됨 or jwt변조면 예외 발생
+                // 위에서 생성된 파서 객체의 parseClaimsJws(jws) 메서드를 호출하여 jwt를 파싱하고
+                // 이때 입력된 jws 문자열(전체 jwt)내의 시그니처 부분이 'key'를 사용해서 생성 됐는지 검증.
+                // 시그니처 잘못됐거나 jwt변조면 예외 발생
                 // 여기서 받는 jws는 완전한 jwt 토큰이여야함.
                 .parseClaimsJws(jws);
     }
