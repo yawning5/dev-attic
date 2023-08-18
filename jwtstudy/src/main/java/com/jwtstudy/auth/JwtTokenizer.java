@@ -47,7 +47,9 @@ public class JwtTokenizer { // jwt 생성 및 검증하는 클래스
                 .setIssuedAt(Calendar.getInstance().getTime())
                 // JWT 만료일시 지정
                 .setExpiration(expiration)
-                // 서명을 위한 Key(java.security.Key) 객체를 설정
+                // 주어진 비밀키로 서명을 위한
+                // Key(java.security.Key) 객체를 설정
+                // 시그니처 생성
                 .signWith(key)
                 // JWT 생성 및 직렬화
                 .compact();
