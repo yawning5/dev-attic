@@ -53,6 +53,18 @@ public class JwtTokenizer { // jwt 생성 및 검증하는 클래스
                 .signWith(key)
                 // JWT 생성 및 직렬화
                 .compact();
+        /*
+        jwt의 헤더는 builder 를 사용할때 자동생성
+
+        페이로드 정보
+        .setClaims(claims)
+        .setSubject(subject)
+        .setIssuedAt(Calendar.getInstance().getTime())
+        .setExpiration(expiration)
+
+        시그니처 정보
+        .signWith(key)
+         */
     }
 
     // refresh 토큰을 생성해주는 메서드
