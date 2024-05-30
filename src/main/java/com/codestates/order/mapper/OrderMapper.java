@@ -122,6 +122,7 @@ public interface OrderMapper {
     OrderResponseDto orderToOrderResponseDto(Order order);
 
     // 주문한 커피 정보를 수동으로 직접 매핑하는 예
+
     /**
      default OrderResponseDto orderToOrderResponseDto(Order order){
      // 객체 그래프 탐색을 통해 주문한 커피 정보를 가져온다.
