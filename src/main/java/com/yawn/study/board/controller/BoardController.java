@@ -29,7 +29,7 @@ public class BoardController {
 
     @PostMapping
     public ResponseEntity<?> postBoard(@RequestBody BoardPostDto postDto,
-                                       @AuthenticationPrincipal CustomUserDetails  userDetails) {
+                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info("게시글 등록 요청 - 요청자 이메일: {}", userDetails.getUsername());
 
         BoardPostResponseDto boardPostResponseDto = boardService.boardPost(postDto, userDetails.getUsername());
