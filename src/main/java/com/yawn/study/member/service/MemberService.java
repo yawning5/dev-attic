@@ -14,12 +14,14 @@ import com.yawn.study.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Slf4j
+@Transactional
 public class MemberService {
 
     private final MemberMapper memberMapper;
@@ -44,10 +46,14 @@ public class MemberService {
         log.info("멤버 서비스, createMember 시작");
         log.info("요청자 이메일: " + memberPostDto.getEmail());
         memberPostDto.setEncodePassword(passwordEncoder.encode(memberPostDto.getPassword()));
+
         Member member = memberMapper.toMember(memberPostDto);
         log.info("매퍼 구동 확인: " + member.getEmail());
+
         verifyExistEmail(member);
+
         memberRepository.save(member);
+
         MemberResponseDto memberResponseDto = new MemberResponseDto();
         memberResponseDto.setId(member.getId());
         memberResponseDto.setNickname(member.getNickname());

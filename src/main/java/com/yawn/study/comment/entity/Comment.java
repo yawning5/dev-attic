@@ -22,7 +22,6 @@ public class Comment {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-
     @ManyToOne
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
@@ -42,6 +41,11 @@ public class Comment {
         this.board = board;
     }
 
+    /**
+     * 코멘트 객체에 작성자 객체와 댓글이 작성된 게시글 객체를 연결
+     * @param board 해당 댓글이 작성된 board객체
+     * @param member 해당 댓글을 작성한 member 객체
+     */
     public void connectTo(Board board,
                           Member member) {
         this.board = board;
