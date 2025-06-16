@@ -31,7 +31,6 @@ public class CommentController {
         CommentResponseDto commentResponseDto =
                 commentService.commentPost(boardId, userDetails.getUsername(), commentPostDto);
 
-
         URI location = URI.create("/board/" + boardId + "/comment/" + commentResponseDto.getId());
 
         return ResponseEntity

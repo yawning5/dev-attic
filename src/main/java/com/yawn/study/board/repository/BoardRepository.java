@@ -22,11 +22,10 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
      dto 를 통해서 잘 끊어놨다면 걱정하지 않아도 된다
      또한 이렇게 조회해주면 N + 1 문제 발생이 되지 않는다
      */
-    @Query("SELECT b " +
+    @Query("SELECT DISTINCT b " +
             "FROM Board b " +
             "LEFT JOIN FETCH b.comments c " +    // Board -> Comment
             "LEFT JOIN FETCH c.member " +        // Comment -> Member
-            "LEFT JOIN FETCH c.board " +         // Comment -> Board
             "LEFT JOIN FETCH b.member " +        // Board -> Member
             "WHERE b.id = :id")
     Optional<Board> findByIdWithAll(@Param("id") Long id);
