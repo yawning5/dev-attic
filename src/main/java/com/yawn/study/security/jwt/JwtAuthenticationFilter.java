@@ -1,6 +1,5 @@
 package com.yawn.study.security.jwt;
 
-import com.yawn.study.security.dto.CustomUserDetails;
 import com.yawn.study.security.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
