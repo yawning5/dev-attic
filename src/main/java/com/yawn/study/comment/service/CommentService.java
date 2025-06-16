@@ -33,6 +33,13 @@ public class CommentService {
         this.boardRepository = boardRepository;
     }
 
+    /**
+     * 새로운 댓글(comment)을 DB에 저장합니다.
+     * @param boardId 댓글이 속하는 board 객체의 id
+     * @param email 댓글을 작성한 user 의 email
+     * @param commentPostDto {@link com.yawn.study.comment.dto.CommentPostDto} 저장할 댓글의 내용
+     * @return {@link com.yawn.study.comment.dto.CommentResponseDto}
+     */
     public CommentResponseDto commentPost(long boardId,
                                           String email,
                                           CommentPostDto commentPostDto) {
