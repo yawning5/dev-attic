@@ -26,7 +26,17 @@ function findClosestIndex(table, cardVal) {
 }
 
 function processTurn({ card, name }, table, score) {
-    
+    const idx = findClosestIndex(table, card);
+    if (idx === -1) return false;
+
+    if (table[idx][0] <= card) {
+        score.set(name, score.get(name) + table[idx][1]);
+        table.splice(idx, 1);
+    } else {
+        table[idx][0] = card;
+        table[idx][1] += 1;
+    }
+    return true;
 }
 
 function play(param0) {
@@ -68,28 +78,39 @@ function play(param0) {
         // ];
 
         // player.sort((a, b) => a[0] - b[0]);
-        const player = buildPlayers(param0.slice(i, i + 3));
+        const players = buildPlayers(param0.slice(i, i + 3));
 
-        for (let j = 0; j < player.length; j++) {
-            const playerCard = player[j][0];
-            const playerName = player[j][1];
+        // for (let j = 0; j < player.length; j++) {
+        //     const playerCard = player[j][0];
+        //     const playerName = player[j][1];
 
-            // const diff = table.map(t => Math.abs(t[0] - playerCard));
-            // const minDiffIndex = diff.indexOf(Math.min(...diff));
-            const minDiffIndex = findClosestIndex(table, playerCard);
+        //     // const diff = table.map(t => Math.abs(t[0] - playerCard));
+        //     // const minDiffIndex = diff.indexOf(Math.min(...diff));
+        //     const minDiffIndex = findClosestIndex(table, playerCard);
 
-            if (minDiffIndex === -1 || table.length === 0) {
+        //     if (minDiffIndex === -1 || table.length === 0) {
+        //         console.log("테이블에 놓을 수 있는 공간이 없습니다.");
+        //         return stringifyScore(score);
+        //     }
+
+        //     if (table[minDiffIndex][0] <= playerCard) {
+        //         score.set(playerName,
+        //             score.get(playerName) + table[minDiffIndex][1]);
+        //         table.splice(minDiffIndex, 1);
+        //     } else {
+        //         table[minDiffIndex][1] += 1;
+        //         table[minDiffIndex][0] = playerCard;
+        //     }
+        // }
+
+        for (const p of players) {
+            if (!processTurn(p, table, score)) {
                 console.log("테이블에 놓을 수 있는 공간이 없습니다.");
                 return stringifyScore(score);
             }
-
-            if (table[minDiffIndex][0] <= playerCard) {
-                score.set(playerName,
-                    score.get(playerName) + table[minDiffIndex][1]);
-                table.splice(minDiffIndex, 1);
-            } else {
-                table[minDiffIndex][1] += 1;
-                table[minDiffIndex][0] = playerCard;
+            if (table.length === 0) {
+                console.log("테이블이 비어있습니다. 게임 종료")
+                return stringifyScore(score);
             }
         }
     }
