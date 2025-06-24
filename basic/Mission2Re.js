@@ -25,6 +25,9 @@ function findClosestIndex(table, cardVal) {
     return idx;
 }
 
+function processTurn({ card, name }, table, score) {
+    
+}
 
 function play(param0) {
     const table = [
