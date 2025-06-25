@@ -52,8 +52,8 @@ function resultFormat(books) {
     //     .join(", ");
 
     return books
-    .map(book => `${book.title}${book.outOfPrint ? "*" : ""}(${book.category}) ${book.rating}`)
-    .join(", ");
+        .map(book => `${book.title}${book.outOfPrint ? "*" : ""}(${book.category}) ${book.rating}`)
+        .join(", ");
 }
 
 /**
@@ -63,10 +63,14 @@ function resultFormat(books) {
  */
 function find(param0, param1) {
     const purchasable =
-        filterStock(filterTerm(books, param0), param1)
+        filterStock(
+            filterTerm(books, param0),
+            param1
+        ).sort(
             // sort 는 filterStock 을 통과한 books 배열의 객체를 인자로 받는 상황
             // 즉 (a, b) 에서 각 a, b 는 객체 한개임
-            .sort((a, b) => b.rating - a.rating);
+            (a, b) => b.rating - a.rating
+        );
 
     if (purchasable.length === 0) return "!EMPTY";
 
