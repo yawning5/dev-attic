@@ -160,6 +160,8 @@ function parser(tokens) {
         };
     }
 
+
+    // 파서 진입부
     const body = [parseVariableDeclaration()];
 
     if (current !== tokens.length) {
