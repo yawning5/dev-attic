@@ -24,11 +24,26 @@ const a = "5";
 
 // [{value: 'const', type: 'keyword}, {value: 'a', type: 'identifier'}, ...]
 ```
-
+---
 ### 2. Parser
 > 토큰을 구조화된 AST 로 변환
 >
 - 중첩을 처리하고 사물의 구조와 관계를 처리함
 - 재귀적 디센트 파서가 흔히 사용된다
+---
+
+### 3. Syntactic Analysis, Semantic analysis
+> AST 에 의미부여, 이름 해석, 타입 검사, 프로그램 검증을 수행한다
+>
+- 중첩을 처리하고 사물의 구조와 관계를 처리한다
+- 문법으로는 문맥 자유 문법 또는 문맥 민감 문법을 사용함
+- 재귀적 디센트 파서가 흔히 사용된다
+---
 
 ## AST 구조 및 데이터 설계
+<a href = "https://github.com/jamiebuilds/the-super-tiny-compiler">the super tiny compiler</a>
+> js 로 구현한 컴파일러 예시
+
+
+
+
