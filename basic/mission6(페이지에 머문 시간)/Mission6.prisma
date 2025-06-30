@@ -1,0 +1,58 @@
+// 화면에 머문시간들은 user 테이블과 1 : N 의 관계로 이루어짐
+model PageView {
+    id Int @id @default(autoincrement())
+    prePage PageName
+    curPage PageName
+    inTime DateTime
+    outTime DateTime
+    durationSeconds Int
+
+    userId BigInt
+    user User @relation(fields: [userId], references: [id])
+}
+
+model User {
+    id BigInt @id @default(autoincrement())
+
+    // ...
+
+    menu3Enabled Boolean
+    // menu3Updated DateTime pageAction 테이블이 생김에 따라 삭제
+    // menu2SaveCount Int
+
+    pageViews PageView[]
+    pageActions PageAction[]
+}
+
+model PageAction {
+    id Int @id @default(autoincrement())
+    page PageName
+    action ActionType
+    time DateTime
+    
+    userId BigInt
+    user User @relation(fields: [userId], references: [id])
+}
+
+enum ActionType {
+    SAVE
+    ON
+    OFF
+}
+
+enum PageName {
+    MENU1_0
+    MENU2_0
+    MENU3_0
+    MENU1_1
+    MENU2_1
+    MENU3_1
+    MENU3_2
+    AD_EVENT_0
+    AD_EVENT_1
+    AD_EVENT_2
+    AD_EVENT_3
+    AD_EVENT_4
+    CONTENTS_0
+
+}
