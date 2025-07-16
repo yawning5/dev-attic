@@ -1,19 +1,27 @@
+
+
 function tokenize(xml) {
     const tagRegex = /(<[^>]+>)|([^<]+)/g;
     const tokens = [];
+    let prolog = null;
     let match;
 
-    while((match = tagRegex.exec(xml))) {
+    while ((match = tagRegex.exec(xml))) {
         const [full, tagPart, textPart] = match;
 
         if (tagPart) {
-            if (/^<\?/.test(tagPart) || /^<!--/.test(tagPart) || /^<!DOCTYPE/i.test(tagPart)) continue;
+            // Prolog(<?xml ... ?>) 만 저장, 나머지 선언/주석 무시
+            if (tagPart.startsWith('<?')) {
+                prolog = tagPart;
+                continue;
+            }
+            if (tagPart.startsWith('<!')) continue;
 
             // 태그
             if (tagPart.startsWith('</')) {
                 // 종료 태그
                 const tagName = tagPart.match(/^<\/([\w\-:]+)/i)[1];
-                tokens.push({ type: 'end', tag: tagName, attrs: null, text: null});
+                tokens.push({ type: 'end', tag: tagName, attrs: null, text: null });
             } else if (tagPart.endsWith('/>')) {
                 // 셀프 클로징
                 const tagName = tagPart.match(/^<([\w\-:]+)/)[1];
@@ -30,7 +38,7 @@ function tokenize(xml) {
             tokens.push({ type: 'text', tag: null, attrs: null, text: textPart.trim() });
         }
     }
-    return tokens
+    return { tokens, prolog }
 }
 
 // 콜론(:), 하이튼(-) 등 속성명까지 지원하는 속성 파서
@@ -47,9 +55,47 @@ function parseAttrs(tagStr) {
     return Object.keys(attrs).length ? attrs : null;
 }
 
-function displayJSON() {
+function parseTree(tokens) {
+    // 루트 노드(더미)와 스택 준비
+    const root = { tag: 'ROOT', attrs: null, children: [] };
+    const stack = [root];
 
+    for (const token of tokens) {
+        if (token.type === 'start') {
+            // 새 노드 만들고 부모의 children에 추가, 스택에 push
+            const node = {
+                tag: token.tag,
+                attrs: token.attrs,
+                children: []
+            };
+            stack[stack.length - 1].children.push(node);
+            stack.push(node);
+        } else if (token.type === 'end') {
+            // 종료 태그면 스택 pop (부모로 올라감)
+            stack.pop();
+        } else if (token.type === 'self') {
+            // 셀프 클로징 태그는 children에 바로 추가 (스택 push 없음)
+            const node = {
+                tag: token.tag,
+                attrs: token.attrs,
+                children: []
+            };
+            stack[stack.length - 1].children.push(node);
+        } else if (token.type === 'text') {
+            // 텍스트 노드 추가
+            stack[stack.length - 1].children.push({
+                text: token.text
+            });
+        }
+    }
+    // ROOT 아래 첫 번째 자식이 진짜 루트!
+    return root.children.length === 1 ? root.children[0] : root.children;
 }
+
+function displayJSON(tree) {
+  return JSON.stringify(tree, null, 2);
+}
+
 
 function elementByAttribute() {
 
@@ -107,4 +153,4 @@ const xml3 = `
 </dict></plist>
 `
 
-console.log(JSON.stringify(tokenize(xml1), null, 2));
+console.log(displayJSON(parseTree(tokenize(xml1).tokens), null, 2));
