@@ -37,13 +37,13 @@ class Simulator {
    */
   setSize(type, length) {}
 
-  pushStack(address) {}
+  #pushStack(address) {}
 
-  popStack() {}
+  #popStack() {}
 
-  alloc(type, count) {}
+  #alloc(type, count) {}
 
-  free(stackAddress) {}
+  #free(stackAddress) {}
 
   /**
    * [다음]
