@@ -1,4 +1,4 @@
-import { Character } from "./character";
+import { Character } from "./character.js";
 
 export class HK extends Character{
         constructor(pos, side) {

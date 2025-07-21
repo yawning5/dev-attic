@@ -54,6 +54,19 @@ export class Character {
         this.#hp = this.#hp - atkPoint
     }
 
+    thanosGetStone(opponent) {
+        if(this.constructor.name !== 'Thanos') {
+            throw new Error('타노스 전용 입니다')
+        }
+        if(opponent.constructor.name === 'Thanos') {
+            return;
+        }
+        this.#hp += 50;
+        this.#atkPoint += 10;
+        this.pocket[opponent.pocket] = true;
+        opponent.pocket = null;
+    }
+
     /**
      * 
      * @param {*} from 
