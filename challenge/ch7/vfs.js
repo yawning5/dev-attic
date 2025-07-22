@@ -1,17 +1,19 @@
 import fs from 'node:fs';
 
-const FileTuple = (name, size = 0, content = "") => ({
+const FileTuple = (name, size = 0, content = "", parent = null) => ({
     name,
     type: 'file',
     size,
-    content       // 텍스트파일이면 내용, 바이너리면 Buffer 등으로 처리 가능
+    content,       
+    parent
 });
 
-const DirTuple = (name, totalSize = 0) => ({
+const DirTuple = (name, totalSize = 0, parent = null) => ({
     name,
     type: 'dir',
     totalSize,
-    children: []    // 디렉토리는 children이 꼭 필요!
+    children: [],    
+    parent
 });
 
 export class Vfs {
@@ -36,6 +38,7 @@ export class Vfs {
     }
 
     #findNode(root, targetDirAdd) {
+        // console.log(`\nfindNode 작동 root 값 ${root}, target 값 ${targetDirAdd}\n`)
         const parts = targetDirAdd.split('/').filter(Boolean);
 
         let current = root;
@@ -63,21 +66,57 @@ export class Vfs {
 
     mkdir(momDir, newDir) {
         const { root, maxSize } = this.#loadFile();
-        const node = this.#findNode(root, momDir);
-        if (node.children.find(child =>
+        const momNode = this.#findNode(root, momDir);
+        if (momNode.children.find(child =>
             child.type === 'dir' &&
             child.name === newDir
         )) {
             console.log('이미 같은 이름의 디렉토리 존재');
             return;
         }
-        const newNode = DirTuple(newDir);
-        node.children.push(newNode);
+        const newNode = DirTuple(newDir, 0, momDir);
+        momNode.children.push(newNode);
         this.#saveFile(maxSize, root);
+
+        return this.#findNode(root, '/').size
     }
 
-    create() {
+    create(momDir, fileName, content) {
+        const { root, maxSize } = this.#loadFile();
+        const momNode = this.#findNode(root, momDir);
+        const contentSize = Buffer.byteLength(content, 'utf-8');
+        if (maxSize - root.size - contentSize < 0) {
+            console.log('용량 초과');
+            return;
+        } else if (momNode.children.find(child =>
+            child.type === 'file' &&
+            child.name === fileName
+        )) {
+            console.log('이미 같은 이름의 파일 존재')
+            return;
+        }
+        const txtFile = FileTuple(fileName, contentSize, content, momDir);
+        momNode.children.push(txtFile);
 
+        let current = momNode;
+
+        // console.log(`create 작동`)
+        // console.log(current.totalSize)
+
+        while (current) {
+            // console.log(`현재 디렉토리 이름 ${current.name} 변경전 사이즈 ${current.totalSize}`)
+            current.totalSize += contentSize;
+            // console.log(`현재 디렉토리 이름 ${current.name} 변경후 사이즈 ${current.totalSize}`)
+            // console.log(`현재 디렉토리 이름 ${current.name} 루트노드 ${current.parent}`)
+            if (!current.parent) {break}
+            current = this.#findNode(root, current.parent);
+            
+        }
+        this.#saveFile(maxSize, root);
+
+        const size = this.#findNode(root, '/').totalSize;
+        // console.log(`사이즈 측정 ${size}, ${maxSize}`);
+        return (maxSize - size);
     }
 
     read() {

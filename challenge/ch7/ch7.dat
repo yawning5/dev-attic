@@ -1,2 +1,2 @@
-500000000
-{"name":"/","type":"dir","totalSize":0,"children":[{"name":"hello","type":"dir","totalSize":0,"children":[]}]}
+300000000
+{"name":"/","type":"dir","totalSize":10,"children":[{"name":"hello","type":"dir","totalSize":10,"children":[{"name":"greeting.txt","type":"file","size":10,"content":"hello, vfs","parent":"/hello"}],"parent":"/"}],"parent":null}

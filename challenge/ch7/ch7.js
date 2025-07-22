@@ -41,19 +41,26 @@ rl.on('line', (line) => {
     const input = line.trim();
 
     if (input.startsWith('makedir')) {
-        console.log('makedir 호출')
-        vfs.mkdir(input.split(' ')[1], input.split(' ')[2])
+        // console.log('makedir 호출')
+        const commandLine = input.split(' ');
+        // console.log(commandLine);
+        vfs.mkdir(commandLine[1], commandLine[2])
+        console.log(`${input.split(' ')[1]} 디렉토리 아래 ${input.split(' ')[2]}를 생성합니다.`)
         rl.prompt();
     }
 
-
-    // 예시: 'exit' 입력시 종료
-    if (input === 'exit') {
-        rl.close();
-    } else {
-        console.log(`입력: ${input}`)
+    if (input.startsWith('create')) {
+        // console.log('create 호출')
+        const commandLine = input.split(' ');
+        const text = commandLine.slice(3).join(' ').replace(/^"|"$/g, '');
+        // console.log(commandLine);
+        // console.log(`\n${text}\n`)
+        const restSize = vfs.create(commandLine[1], commandLine[2], text);
+        console.log(`${commandLine[1]} 디렉토리 아래 ${commandLine[2]} 파일을 생성했습니다.`)
+        console.log(`여유 공간: ${restSize} byte`)
         rl.prompt();
     }
+
 }).on('close', () => {
     console.log('프로그램을 종료합니다')
     process.exit(0);
