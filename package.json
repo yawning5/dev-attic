@@ -4,12 +4,15 @@
   "description": "부스트 캠프 베이직 과정",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
   },
   "author": "yawning5",
   "license": "ISC",
   "engines": {
     "node": ">=22.0.0"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "jest": "^30.0.5"
+  }
 }

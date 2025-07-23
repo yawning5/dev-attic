@@ -60,8 +60,8 @@ export class Vfs {
         this.#saveFile(maxSize, root);
     }
 
-    list() {
-
+    list(momDir) {
+        const { root, maxSize } = this.#loadFile();
     }
 
     mkdir(momDir, newDir) {
