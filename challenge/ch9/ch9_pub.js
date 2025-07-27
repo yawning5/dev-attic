@@ -1,53 +1,48 @@
-function createListenerRecord({ subscriber, eventName, sender, emitterType, handler, id }) {
-  return {
-    id,
-    subscriber,
-    subscriberId: ensureId(subscriber),
-    eventName,
-    sender,
-    senderId: sender ? ensureId(sender) : null,
-    emitterType,   // 'sync' | 'async' | 'delay'
-    handler
-  };
-}
+import { EventManager } from './ch9_eventManager.js';
 
-// 이 OBJ_ID 변수를 복사해서 가지고 다녀야
-const OBJ_ID = Symbol('obj.id');
-let seq = 0;
+const M = EventManager.sharedInstance();
 
-function ensureId(obj) {
-    if (obj == null) {
-        return null;
-    }
-    if (!obj[OBJ_ID]) {
-        // 여기 설정한 OBJ_ID 속성을 열람가능
-        Object.defineProperty(obj, OBJ_ID, {
+// 설명 가능한 Publisher/Subscriber 객체들
+const albumModel = { description: () => 'albumModel' };
+const albumItemView = { description: () => 'albumItemView' };
+const albumController = { description: () => 'albumController' };
+const dummy = { description: () => 'dummy' };
 
-        })
-    }
-}
+const A = { description: () => 'subscriberA' };
+const B = { description: () => 'subscriberB' };
+const C = { description: () => 'subscriberC' };
+const D = { description: () => 'subscriberD' };
 
-class EventManager {
+// 구독 등록(구독자가 emitter 지정)
+M.add(A, "ModelDataChanged", albumModel, (e, completed) => {
+    console.log('A:', e.toString());
+}, 'async');
 
-    static instance;
-    #listeners
-    #seq
+M.add(B, "", albumItemView, (e, completed) => {
+    console.log('B:', e.toString());
+}, 'sync');
 
-    constructor() {
-        this.#listeners = new Map();
-        this.#seq = 0;
-    }
+M.add(C, "DidShakeMotion", albumController, (e, completed) => {
+    console.log('C1:', e.toString());
+}, 'async');
 
-    static sharedInstance() {
-        if (!EventManager.instance) {
-            EventManager.instance = new EventManager();
-        }
-        return EventManager.instance;
-    }
+M.add(C, "AllDataChanged", null, (e, completed) => {
+    console.log('C2:', e.toString());
+}, 'async');
 
-    add(subscriber, eventName, sender, emitterType, handler) {
-        const record = createListenerRecord(
-            subscriber, eventName, sender, emitterType, handler, ++this.#seq
-        )
-    }
-}
+M.add(D, "", null, (e, completed) => {
+    console.log('D:', e.toString());
+}, 'async');
+
+// 등록 요약
+console.log('\n-- subscribers --\n' + M.description());
+
+// 발행 시나리오
+M.postSync("ModelDataChanged", albumModel, { data: "abc" }, false);               // 동기
+M.postSync("viewUpdated", albumItemView, { view: "xxx" }, false);                  // 동기
+M.postAsync("DidShakeMotion", albumController, { from: "blue" }, false);           // 비동기(진행중)
+M.postAsync("DidShakeMotion", albumController, { from: "blue" }, true);            // 비동기(완료)
+M.postDelay("AllDataChanged", dummy, {}, 10_000, false);                            // 10초 지연
+
+// 비동기/지연 확인 대기
+setTimeout(() => console.log('[main] done'), 11_000);
