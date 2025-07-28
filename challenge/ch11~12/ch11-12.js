@@ -2,76 +2,120 @@ import { EventEmitter } from 'events';
 import readline from 'node:readline';
 
 // ===== [파일 관련] =====
-const FILE = (type, state = '대기') => ({
-    type,
-    state
-})
+const FILE = (type, state = '대기중') => {
 
-class EventManager extends EventEmitter {
-
-    static #instance;
-
-    constructor() {
-        super();
-        if (EventManager.#instance) return EventManager.#instance;
-        EventManager.#instance = this;
+    let convertSec;
+    switch (type) {
+        case `1`: convertSec = 3; break;     // 단편 3분
+        case `2`: convertSec = 7; break;     // 중편 7분
+        case `3`: convertSec = 15; break;    // 장편 15분
+        default: throw new Error(`type 에 맞는 시간 없음`)
     }
 
-    addQueue(files) {
-        this.emit('addQueue', files)
-    }
+    return {
+        type,
+        state,
+        convertSec,
+    };
 }
 
-const em = new EventManager();
+const bus = new EventEmitter();
 
 // ===== [업로드 매니저] =====
 class UploadManager {
-    #Queue
+    #waitQueue
+    #convertingQueue
+    #preVerifyQueue
+    #verifyingQueue
+
     static #instance
 
-    constructor() {
+    constructor(bus) {
         if (UploadManager.#instance) return UploadManager.#instance;
         UploadManager.#instance = this;
-        this.#Queue = [];
+        this.#waitQueue = [];
+        this.#convertingQueue = [];
+        this.#preVerifyQueue = [];
+        this.#verifyingQueue = [];
+        this.bus = bus;
+
+        this.bus.on('addWaitQueue', (files) => {
+            this.add(files);
+        })
     }
 
-    getQ() {
-        return this.#Queue;
+    getWQ() {
+        return this.#waitQueue;
     }
 
     add(files) {
         for (const file of files) {
-            this.#Queue.push(file);
+            this.#waitQueue.push(file);
         }
+        bus.emit('printQueue', this.#waitQueue);
     }
 }
 
-const um = new UploadManager();
+const um = new UploadManager(bus);
+
+// ===== [변환 모듈] =====
+class Transcoder {
+    #busy = false;
+    constructor(bus) {
+        this.bus = bus;
+    }
+
+    async convert(file) {
+        if (this.#busy) {
+            const err = new Error('점유중');
+            console.error(err.stack);
+            throw err;
+        }
+        this.#busy = true;
+        file.state = '변환중'
+        bus.startConvert(file)
+
+        await sleep(file.convertSec);
+        file.state('검증중')
+        bus.endConvert(file);
+
+        this.#busy = false;
+    }
+}
 
 // ===== [대시보드] =====
 class DashBoard {
-    constructor() {
+    constructor(bus, um) {
+        this.bus = bus;
+        this.um = um;
 
+        this.bus.on('printQueue', (queue) => {
+            this.printQueue(queue);
+        })
     }
 
     printQueue(queue) {
+
+        const cur = queue.filter(n =>
+            n.state === '변환중'
+        );
+
+        const curLog = cur.length > 0 ? `:${cur.map(f => f.type).join(',')} ` : '';
+
         const waitQ = queue.filter(n =>
-            n.state === '대기'
+            n.state === '대기중'
         )
         const waitQTypes = waitQ.map(n => n.type);
         console.log(waitQTypes)
-        console.log(`대기중/${waitQTypes.join(',')}/`)
+        console.log(`${curLog}대기중/${waitQTypes.join(',')}/`)
+    }
+
+    convertStart() {
+        
     }
 }
 
-const dashBoard = new DashBoard();
-
-// ===== [이벤트 구독] =====
-em.on('addQueue', (files) => {
-    um.add(files);
-    dashBoard.printQueue(um.getQ());
-})
-
+const dashBoard = new DashBoard(bus, um);
 
 // ===== [콘솔 관련] =====
 const rl = readline.createInterface({
@@ -90,8 +134,8 @@ function askFile() {
                 const file = FILE(type);
                 files.push(file);
             }
-            em.addQueue(files);
-            
+            bus.emit('addWaitQueue', files);
+
             rl.prompt();
         }
     )
