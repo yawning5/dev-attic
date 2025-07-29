@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import readline from 'node:readline';
 
-// ===== [헬퍼 함수] =====
+// ===== [헬퍼] =====
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -17,8 +17,11 @@ function typeToStr(type) {
     }
 }
 
-// ===== [파일 관련] =====
-const FILE = (type, state = '대기중') => {
+const transCoders = [];
+const verifiers = [];
+
+// ===== [파일] =====
+const FILE = (type, state = '대기중', user, transCoderId = 0) => {
 
     let convertSec;
     switch (type) {
@@ -32,6 +35,8 @@ const FILE = (type, state = '대기중') => {
         type,
         state,
         convertSec,
+        user,
+        transCoderId
     };
 }
 
@@ -53,18 +58,6 @@ class UploadManager {
         this.bus.on('addWaitQueue', (files) => {
             this.addWQ(files);
         })
-        this.bus.on('endConvert', () => {
-            if (this.#waitQueue.find(n => n.state === '대기중')) {
-                bus.emit('startConvert', this.#waitQueue);
-            }
-            bus.emit('startVerify', this.#waitQueue)
-        });
-        this.bus.on('endVerify', () => {
-            if (this.#waitQueue.filter(n => n.state != '공개중').length == 0) {
-                console.log("모든 영상 공개했습니다.")
-            }
-            bus.emit('startVerify', this.#waitQueue);
-        })
     }
 
     getWQ() {
@@ -76,7 +69,6 @@ class UploadManager {
             this.#waitQueue.push(file);
         }
         bus.emit('printQueue', this.#waitQueue);
-        bus.emit('startConvert', this.#waitQueue);
     }
 }
 
@@ -85,7 +77,9 @@ const um = new UploadManager(bus);
 // ===== [변환 모듈] =====
 class Transcoder {
 
+    workSlot = [];
     #busy = false;
+    #cap = 2;
 
     constructor(bus) {
         this.bus = bus;
@@ -96,10 +90,29 @@ class Transcoder {
         })
     }
 
+    #checkSlot() {
+        if (this.workSlot.length >= this.#cap) {
+            this.#busy = true;
+        } else {
+            this.#busy = false;
+        }
+    }
+
+    getId() {
+        return transCoders.indexOf(this);
+    }
+
+    isBusy() {
+        return this.#busy;
+    }
+
     async convert(queue) {
         if (this.#busy) return;
         const file = queue.find(n => n.state === '대기중');
         if (!file) return;
+
+        const id = this.getId();
+        file.transCoderId = id + 1;
 
         this.#busy = true;
         file.state = '변환중'
@@ -112,17 +125,19 @@ class Transcoder {
         }
 
         file.state = '검증대기중'
+        file.transCoderId = 0;
         this.#busy = false;
 
         bus.emit('endConvert');
     }
 }
 
-const transCoder = new Transcoder(bus);
+const transcoder = new Transcoder(bus);
 
 // ===== [검증 모듈] =====
 class Verifier {
     #busy = false;
+
     constructor(bus) {
         this.bus = bus;
 
@@ -132,10 +147,19 @@ class Verifier {
         })
     }
 
+    isBusy() {
+        return this.#busy;
+    }
+
+    getId() {
+        return transCoders.indexOf(this);
+    }
+
     async verify(queue) {
         const file = queue.find(n => n.state === '검증대기중')
         if (this.#busy) {
             console.log(`${typeToStr(file.type)} 검증 대기`)
+            return;
         }
         if (!file) {
             return;
@@ -181,22 +205,100 @@ class DashBoard {
      * @param {*} queue waitQueue 를 받습니다
      */
     printQueue(queue) {
-        const cur = queue.filter(n =>
-            n.state === '변환중'
+        const grouped = queue.reduce(
+            (acc, f) => {
+                acc[f.state].push(f.type);
+                return acc;
+            },
+            {
+                '변환중': [],   // cur
+                '대기중': [],   // 변환 대기
+                '검증대기중': [],   // 검증 대기
+                '검증중': []    // verifying
+            }
         );
 
-        const curLog = cur.length > 0 ? `:${cur.map(f => f.type).join(',')} ` : '';
-
-        const waitQ = queue.filter(n =>
-            n.state === '대기중'
-        )
-        const waitQTypes = waitQ.map(n => n.type);
-        console.log(waitQTypes)
-        console.log(`${curLog}대기중/${waitQTypes.join(',')}/`)
+        console.log(`변환중:${grouped['변환중'].join(',')} 변환대기/${grouped['대기중'].join(',')}/ 검증대기/${grouped['검증대기중'].join(',')}/ 검증중/${grouped['검증중'].join(',')}/`)
     }
 }
 
 const dashBoard = new DashBoard(bus, um);
+
+// ===== [모듈 팩토리] =====
+class ModuleFactory {
+
+    constructor(bus) {
+        this.bus = bus
+
+        // ===== [이벤트 구독] =====
+        bus.on('create:module', (recipe) => {
+            const [trCnt, vrCnt] = recipe.map(Number)
+
+            // 변환 모듈 만들기
+            for (let i = 0; i < trCnt; i++) {
+                transCoders.push(new Transcoder(bus));     // id 는 배열 index
+            }
+            // 검증 모듈 만들기
+            for (let i = 0; i < vrCnt; i++) {
+                verifiers.push(new Verifier(bus));
+            }
+            console.log(`서버별 현재 변환 모듈은 ${trCnt}개, 검증 모듈은 ${vrCnt}개입니다.`);
+            bus.emit('module:ready');
+        })
+    }
+}
+
+new ModuleFactory(bus);
+// ===== [Looper] =====
+class Looper {
+    static #inst;
+    #timer
+
+    constructor(bus, um, transcoder, verifier) {
+        Looper.#inst = this;
+        this.bus = bus;
+        this.um = um;
+        this.transcoder = transcoder;
+        this.verifier = verifier;
+
+        // ===== [이벤트 구독] =====
+        // 주기적으로 큐 상태 확인
+        this.bus.on('module:ready', () => {
+            this.#timer = setInterval(() => this.tick(), 500);
+        })
+        // 완료 이벤트가 오면 즉시 한 번 더 tick
+        this.bus.on('endConvert', () => {
+            this.tick()
+        });
+        this.bus.on('endVerify', () => {
+            this.tick()
+        });
+    }
+
+    tick() {
+        const q = this.um.getWQ();
+
+        /* ─ 변환 슬롯 확인 ─ */
+        if (!this.transcoder.isBusy()) {
+            const next = q.find(f => f.state === '대기중');
+            if (next) this.bus.emit('startConvert', q);
+        }
+
+        /* ─ 검증 슬롯 확인 ─ */
+        if (!this.verifier.isBusy()) {
+            const next = q.find(f => f.state === '검증대기중');
+            if (next) this.bus.emit('startVerify', q);
+        }
+
+        /* ─ 전부 끝났나? ─ */
+        if (q.length && q.every(f => f.state === '공개중')) {
+            console.log('모든 영상 공개했습니다.');
+            clearInterval(this.#timer);   // 원한다면 루프 종료
+        }
+    }
+}
+
+new Looper(bus, um, transcoder, verifier)
 
 // ===== [콘솔 관련] =====
 const rl = readline.createInterface({
@@ -204,15 +306,33 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
+function askModule() {
+    rl.question('모듈 갯수 입력 변환 모듈 갯수:검증 모듈 갯수 ex 3:4', (answer) => {
+        const recipe = answer.split(':');
+        bus.emit('create:module', recipe);
+    })
+}
+
 console.log('영상 업로드  =  1. 단편(3분)    2. 중편(7분)    3. 장편(15분)\n업로드할 영상을 입력하세요. 예) 단편 2개 => 1:2');
 rl.prompt();
 
 rl.on('line', (answer) => {
-    const [type, Num] = answer.split(':');
+
     const files = [];
-    for (let i = 0; i < Num; i++) {
-        const file = FILE(type);
-        files.push(file);
+
+    const user_files = answer
+        .split(',')
+        .map(n => n.trim());
+
+    const fileList = user_files.slice(1, user_files.length);
+
+    for (const file of fileList) {
+        const [type, Num] = file.split(':');
+
+        for (let i = 0; i < Num; i++) {
+            const file = FILE(type);
+            files.push(file);
+        }
     }
     rl.prompt();
     bus.emit('addWaitQueue', files);
