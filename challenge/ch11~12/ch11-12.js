@@ -132,7 +132,6 @@ class Transcoder {
     }
 }
 
-const transcoder = new Transcoder(bus);
 
 // ===== [검증 모듈] =====
 class Verifier {
@@ -152,7 +151,7 @@ class Verifier {
     }
 
     getId() {
-        return transCoders.indexOf(this);
+        return verifiers.indexOf(this);
     }
 
     async verify(queue) {
@@ -182,7 +181,6 @@ class Verifier {
     }
 }
 
-const verifier = new Verifier(bus);
 
 // ===== [대시보드] =====
 class DashBoard {
@@ -214,7 +212,8 @@ class DashBoard {
                 '변환중': [],   // cur
                 '대기중': [],   // 변환 대기
                 '검증대기중': [],   // 검증 대기
-                '검증중': []    // verifying
+                '검증중': [],    // verifying
+                '공개중': []
             }
         );
 
@@ -249,17 +248,16 @@ class ModuleFactory {
 }
 
 new ModuleFactory(bus);
+
 // ===== [Looper] =====
 class Looper {
     static #inst;
     #timer
 
-    constructor(bus, um, transcoder, verifier) {
+    constructor(bus, um,) {
         Looper.#inst = this;
         this.bus = bus;
         this.um = um;
-        this.transcoder = transcoder;
-        this.verifier = verifier;
 
         // ===== [이벤트 구독] =====
         // 주기적으로 큐 상태 확인
@@ -279,15 +277,15 @@ class Looper {
         const q = this.um.getWQ();
 
         /* ─ 변환 슬롯 확인 ─ */
-        if (!this.transcoder.isBusy()) {
-            const next = q.find(f => f.state === '대기중');
-            if (next) this.bus.emit('startConvert', q);
+        while (transCoders.some(t => !t.isBusy()) &&
+            q.some(f => f.state === '대기중')) {
+            this.bus.emit('startConvert', q);   // 빈 모듈마다 한 번씩
         }
 
         /* ─ 검증 슬롯 확인 ─ */
-        if (!this.verifier.isBusy()) {
-            const next = q.find(f => f.state === '검증대기중');
-            if (next) this.bus.emit('startVerify', q);
+        while (verifiers.some(v => !v.isBusy()) &&
+            q.some(f => f.state === '검증대기중')) {
+            this.bus.emit('startVerify', q);
         }
 
         /* ─ 전부 끝났나? ─ */
@@ -298,7 +296,7 @@ class Looper {
     }
 }
 
-new Looper(bus, um, transcoder, verifier)
+new Looper(bus, um)
 
 // ===== [콘솔 관련] =====
 const rl = readline.createInterface({
@@ -313,6 +311,7 @@ function askModule() {
     })
 }
 
+askModule();
 console.log('영상 업로드  =  1. 단편(3분)    2. 중편(7분)    3. 장편(15분)\n업로드할 영상을 입력하세요. 예) 단편 2개 => 1:2');
 rl.prompt();
 
@@ -324,7 +323,7 @@ rl.on('line', (answer) => {
         .split(',')
         .map(n => n.trim());
 
-    const fileList = user_files.slice(1, user_files.length);
+    const fileList = user_files.slice(1);
 
     for (const file of fileList) {
         const [type, Num] = file.split(':');
