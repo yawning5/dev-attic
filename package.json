@@ -4,7 +4,7 @@
   "description": "부스트 캠프 베이직 과정",
   "main": "index.js",
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
+    "test": "mocha --timeout 5000 \"tests/**/*.test.js\""
   },
   "author": "yawning5",
   "license": "ISC",
@@ -13,6 +13,9 @@
   },
   "type": "module",
   "devDependencies": {
-    "jest": "^30.0.5"
+    "chai": "^5.2.1",
+    "jest": "^30.0.5",
+    "mocha": "^11.7.1",
+    "sinon": "^21.0.0"
   }
 }

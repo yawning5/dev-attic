@@ -2,14 +2,14 @@ import bus from './bus.js';
 import dashBoard from './DashBoard.js';
 
 // ===== [업로드 매니저] =====
-class UploadManager {
+export class UploadManager {
     #waitQueue;
 
-    static #instance;
+    // static #instance;
 
     constructor(bus) {
-        if (UploadManager.#instance) return UploadManager.#instance;
-        UploadManager.#instance = this;
+        // if (UploadManager.#instance) return UploadManager.#instance;
+        // UploadManager.#instance = this;
         this.#waitQueue = [];
         this.bus = bus;
 
@@ -27,7 +27,7 @@ class UploadManager {
         for (const file of files) {
             this.#waitQueue.push(file);
         }
-        bus.emit('printQueue', this.#waitQueue);
+        this.bus.emit('printQueue', this.#waitQueue);
     }
 }
 
