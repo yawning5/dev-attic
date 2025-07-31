@@ -12,15 +12,18 @@ const rl = readline.createInterface({
 git add
 git commit
 git log
+
+git realAdd <파일명>
 */
 
 console.log('포맷 git <명령어>')
 
 rl.on('line',  (answer) => {
     if (!answer.startsWith('git')) throw new Error('포맷 git <명령어>')
-    const command = answer.split(' ')[1];
+    const commandArgs = answer.split(' ');
+    const command = commandArgs[1];
 
-    commandBroker(command);
+    commandBroker(command, commandArgs[2]);
 
     rl.prompt();
 })

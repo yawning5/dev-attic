@@ -122,24 +122,15 @@ export function readIndex(repoPath = process.cwd()) {
     return entries;
 }
 
-// console.log('commit tree 읽어옴')
-// for (const a of readTree()) {
-//     console.log(a)
-// }
-
-// console.log('index 파일 읽어옴')
-// for (const a of readIndex()) {
-//     console.log(a);
-// }
-
-// console.log(JSON.stringify(readCommitData()))
-
-// const hash = readCommitData().parent
-// // console.log(hash)
-
-// const oldHash = readCommitData(hash);
-// console.log(oldHash)
-
-// // console.log(readTree(oldHash))
-
-// console.log(readGitHEAD())
+/**
+ * 파일내용을 이진데이터로 반환
+ * @param {*} fileName 
+ * @param {*} repoPath (기본값: process.cwd())
+ * @returns (이진테이터) 파일내용
+ */
+export function readTargetFile(fileName, repoPath = process.cwd()) {
+    const filePath = path.join(repoPath, fileName);
+    const content = fs.readFileSync(filePath);
+    
+    return content;
+}
