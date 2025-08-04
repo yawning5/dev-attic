@@ -1,7 +1,6 @@
-import zlib from 'zlib';
-import fs, { link } from 'node:fs'
-import path from 'path';
 import crypto from 'crypto';
+import fs from 'node:fs';
+import zlib from 'zlib';
 import { readCommitData, readGitHEAD, readIndex, readTargetFile, readTree } from "./readfile.js";
 
 export function researchGitAdd() {
@@ -66,7 +65,7 @@ export function realGitAdd(fileName) {
     writeIndex(entries);
 }
 
-function writeIndex(entries, indexPath = '.git/index') {
+export function writeIndex(entries, indexPath = '.git/index') {
     // 1. header
     const header = Buffer.alloc(12);
     header.write('DIRC', 0, 4, 'ascii');
