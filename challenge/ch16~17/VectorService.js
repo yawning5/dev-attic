@@ -35,10 +35,18 @@ export class VectorService {
         await this.db.removeById(id);
     }
 
-    async findRecord(input) {
-        await this.db.knn(input);
+    async findRecord(sentence, k = 5) {
+
+        const queryVec = await this.convert(sentence);
+
+        const results = await this.db.knn(queryVec, k);
+
+        console.log('위치 findRecord' + results)
+        
+        return results.map(({ id, sentence, score }) => ({ id, sentence }))
     }
 }
 
-const vs = await new VectorService(768).init();
-await vs.addRecord('hello');
+const vs = await new VectorService(384).init();
+const a = await vs.findRecord('주소: 경기도');
+console.log(JSON.stringify(a, null, 2)); // 보기 좋게 들여쓰기
