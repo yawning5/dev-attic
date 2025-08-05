@@ -27,10 +27,6 @@ export class VectorDB {
      * @param {} record { id: num, sentence: string, vector: arr} 포맷의 객체
      */
     async add(record) {
-        console.log(record)
-        if (record.vector.length !== this.dim) {
-            throw new Error(`차원 불일치: expected ${this.dim}`);
-        }
         record.id = this.lastId++;
         this.data.push(record);
         await this.#save();

@@ -20,7 +20,7 @@ export async function get768Vector(input) {
     const extractor = await pipeline('feature-extraction', 'Xenova/all-mpnet-base-v2');
     const tensor = await extractor(input);
 
-    console.log('🔍 tensor.dims from 768 model:', tensor.dims);  // 👈 여기 찍어보기
+    // console.log('🔍 tensor.dims from 768 model:', tensor.dims);  // 👈 여기 찍어보기
 
     return extractVector(tensor);
 }
