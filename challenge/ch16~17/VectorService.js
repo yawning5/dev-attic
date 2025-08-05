@@ -46,7 +46,3 @@ export class VectorService {
         return results.map(({ id, sentence, score }) => ({ id, sentence }))
     }
 }
-
-const vs = await new VectorService(384).init();
-const a = await vs.findRecord('주소: 경기도');
-console.log(JSON.stringify(a, null, 2)); // 보기 좋게 들여쓰기

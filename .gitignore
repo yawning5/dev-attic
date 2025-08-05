@@ -1,1 +1,6 @@
 node_modules/
+challenge/ch16~17/test.csv
+challenge/ch16~17/384vector.json
+challenge/ch16~17/768vector.json
+challenge/ch16~17/testcsvToJson.json
+challenge/ch16~17/word_freq.json
