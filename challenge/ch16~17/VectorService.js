@@ -41,8 +41,19 @@ export class VectorService {
 
         const results = await this.db.knn(queryVec, k);
 
-        console.log('위치 findRecord' + results)
-        
-        return results.map(({ id, sentence, score }) => ({ id, sentence }))
+        // console.log('위치 findRecord' + results)
+
+        // return results.map(({ id, sentence, score }) => ({ id, sentence }))
+        return results.map(({ id, question1, question2 }) => ({
+            id,
+            q1: question1,
+            q2: question2,
+        }));
     }
 }
+
+const vs = await new VectorService(768).init();
+
+const results = await vs.findRecord("How much does a hair transplant cost?", 5);
+
+console.table(results);
