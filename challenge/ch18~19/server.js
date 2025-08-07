@@ -1,7 +1,11 @@
 import net from 'node:net';
+import dgram from 'node:dgram';
 import { requestHandler, sessionOut, sessionReg } from './requestHandler.js';
 
 const PORT = 2025;
+const UDP_PORT = 41234;
+const udp = dgram.createSocket('udp4');
+udp.bind(() => udp.setBroadcast(true));
 
 const server = net.createServer(socket => {
     socket.setEncoding('utf8');

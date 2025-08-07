@@ -3,6 +3,10 @@ import { group } from "node:console";
 const clients = new Map();
 const groups = [];
 const sessions = new Map();
+const token = 'hash-token';
+let activeChat = null;
+let chatActivator = null;
+let hasMd = null;
 
 export function requestHandler(sock, line) {
     const [command, ...rest] = line.split(' ');
@@ -20,6 +24,15 @@ export function requestHandler(sock, line) {
             break;
         case 'buy':
             buyGoods(sock, content);
+            break;
+        case 'snapchat':
+            createChat(sock, content);
+            break;
+        case 'auth':
+            mdLogin(sock, content);
+            break;
+        case 'add':
+            addGoods(sock, content);
             break;
     }
 }
@@ -57,8 +70,14 @@ function login(sock, content) {
 }
 
 function logout(sock) {
-    groups[clients.get(sock).group].delete(sock)
-    clients.delete(sock);
+
+    if (hasMd === sock) {
+        hasMd = null;
+    } else {
+        groups[clients.get(sock).group].delete(sock)
+        clients.delete(sock);
+    }
+
     sock.write('logout success');
 }
 
@@ -70,22 +89,66 @@ function getCatalog(sock) {
 
 function buyGoods(sock, content) {
     isLogin(sock);
-    const [ id, count ] = content.split(' ');
+    const [id, count] = content.split(' ');
     const product = goodsList.find(n => n.id === +id);
-    if (!product) throw new Error (`없는 상품`);
-    if (product.stock < count) throw new Error (`재고 부족`);
+    if (!product) throw new Error(`없는 상품`);
+    if (product.stock < count) throw new Error(`재고 부족`);
 
     product.stock = product.stock - count;
     sock.write(`${id} ${product.name} *${count} purchased`)
 }
 
+function createChat(sock, content) {
+    isLogin(sock);
+    if (activeChat) throw new Error(`이미 활성화 된 채팅방 존재`);
+    const { group } = clients.get(sock);
+    const max = content.match(/maxCount=(\d+)/)
+    if (!max) throw new Error(`maxCount 필요`)
+    activeChat = { group, left: +max[1] }
+    chatActivator = sock;
+    for (const member of groups[group]) {
+        member.write(`채팅이 시작 되었습니다`);
+    }
+}
+
 function isLogin(sock) {
+    if (sock === hasMd) return
     if (!clients.has(sock)) {
         sock.write(`로그인 후 이용가능합니다`)
         throw new Error('로그인 필요');
     }
 }
 
+function mdLogin(sock, content) {
+    if (hasMd) {
+        throw new Error(`이미 로그인한 md 존재`);
+    }
+    if (content != token) throw new Error(`인증키가 다릅니다`);
+
+    hasMd = sock;
+}
+
+function addGoods(sock, content) {
+    if(!hasMd || hasMd !== sock) {
+        throw new Error (`md 만 접근가능한 명령어 입니다`);
+    }
+    console.log(content)
+    const [id, name, count] = content.split(' ');
+
+    let product = goodsList.find(n => n.name === name);
+    if (!product) {
+        product = {
+            id: goodsList.length + 1,
+            name: name,
+            stock: count
+        }
+        goodsList.push(product)
+    } else if (product) {
+        product.stock = product.stock + count;
+    }
+
+    sock.write(`${id} ${name} total = ${product.stock}`)
+}
 
 const goodsList = [
     { id: 1, name: '무선 마우스', stock: 25 },
