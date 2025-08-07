@@ -17,10 +17,10 @@ export function requestHandler(sock, line) {
             break;
         case 'catalog':
             isLogin(sock)
-            return getCatalog(sock);
+            return getCatalog();
         case 'buy':
             isLogin(sock)
-            return buyGoods(sock, content);
+            return buyGoods(content);
         case 'snapchat':
             isLogin(sock)
             createChat(sock, content);

@@ -39,12 +39,14 @@ export function addGoods(content) {
 }
 
 export function buyGoods(content) {
-    const [id, count] = content.split(' ');
+    console.log(content)
+    const [id, name, count] = content.split(' ');
+    console.log(count)
     const product = goodsList.find(n => n.id === +id);
     if (!product) throw new Error(`없는 상품`);
     if (product.stock < count) throw new Error(`재고 부족`);
 
-    product.stock = product.stock - +count;
+    product.stock = product.stock - count;
     return (`${id} ${product.name} *${count} purchased`);
 }
 
