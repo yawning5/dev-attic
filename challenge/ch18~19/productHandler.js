@@ -19,7 +19,7 @@ export const goodsList = [
     { id: 18, name: '랜선 10m', stock: 42 }
 ];
 
-export function addGoods(sock, content) {
+export function addGoods(content) {
     console.log(content);
     const [id, name, count] = content.split(' ');
 
@@ -38,7 +38,7 @@ export function addGoods(sock, content) {
     return (`${id} ${name} total = ${product.stock}`);
 }
 
-export function buyGoods(sock, content) {
+export function buyGoods(content) {
     const [id, count] = content.split(' ');
     const product = goodsList.find(n => n.id === +id);
     if (!product) throw new Error(`없는 상품`);
@@ -48,7 +48,7 @@ export function buyGoods(sock, content) {
     return (`${id} ${product.name} *${count} purchased`);
 }
 
-export function getCatalog(sock) {
+export function getCatalog() {
     if (goodsList.length < 15) throw new Error (`error 상품갯수가 모자랍니다`);
     return (`items are ${JSON.stringify(goodsList, null, 2)}`);
 }
