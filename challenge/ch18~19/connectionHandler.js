@@ -3,6 +3,8 @@ export const groups = [];
 export let hasMd = null;
 const token = 'hash-token';
 export const sessions = new Map();
+export let activeChat = null;
+export let chatActivator = null;
 
 export function login(sock, content) {
     if (!content.startsWith('S')) return sock.write(`S 로 시작하는 ID 가 필요합니다`);
@@ -62,5 +64,22 @@ export function sessionReg(sock) {
 export function sessionOut(sock) {
     sessions.delete(sock);
     clients.delete(sock);
+}
+
+export function createChat(sock, content) {
+    if (activeChat) throw new Error(`이미 활성화 된 채팅방 존재`);
+    const { group } = clients.get(sock);
+    const max = content.match(/maxCount=(\d+)/);
+    if (!max) throw new Error(`maxCount 필요`);
+    activeChat = { group, left: +max[1] };
+    chatActivator = sock;
+    for (const member of groups[group]) {
+        member.write(`채팅이 시작 되었습니다`);
+    }
+}
+
+export function isGroup(sock) {
+    const { group } = clients.get(sock);
+    if (group !== activeChat.group) throw new Error(`그룹원만 채팅이 가능합니다`);
 }
 

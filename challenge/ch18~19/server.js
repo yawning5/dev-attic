@@ -3,13 +3,28 @@ import dgram from 'node:dgram';
 import { requestHandler } from './requestHandler.js';
 
 const PORT = 2025;
-const UDP_PORT = 41234;
 const BROADCAST_ADDR = '255.255.255.255';
-const udpSock = dgram.createSocket('udp4');
+const udpSock = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
-udpSock.bind(() => {
+udpSock.bind(PORT, () => {
     udpSock.setBroadcast(true)
+
+    // setInterval(() => {
+    //     const message = Buffer.from(`방송메세지입니다`);
+    //     udpSock.send(message, 0, message.length, UDP_PORT, BROADCAST_ADDR,
+    //         (err) => {
+    //             if (err) console.error(`Send err:`, err);
+    //         })
+    // }, 1000)
 });
+
+udpSock.on('message', (msg, rInfo) => {
+    console.table([{
+        address: rInfo.address,
+        port: rInfo.port,
+        message: msg.toString()
+    }]);
+})
 
 const server = net.createServer(socket => {
     socket.setEncoding('utf8');
@@ -24,7 +39,14 @@ const server = net.createServer(socket => {
 
         try {
             const announce = requestHandler(socket, data);
-            socket.write('\n' + announce + '\n');
+            if (announce.protocol === 'udp') {
+                udpSock.send(announce.msg, PORT, BROADCAST_ADDR, (err) => {
+                    if(err) console.error('send 에러', err);
+                    else console.log('방송성공')
+                })
+            } else {
+                socket.write('\n' + announce + '\n');
+            }
         } catch (error) {
             console.log(`에러 발생: ${error.message}`)
             socket.write(`에러 발생: ${error.message}`)

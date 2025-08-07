@@ -8,13 +8,21 @@ createSocketClient({
     }
 })
 
-const PORT = 41234;
+const PORT = 2025;
+const BROADCAST_ADDR = '255.255.255.255';
 
 const udpSock = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
 udpSock.on('listening', () => {
     const address = udpSock.address();
     console.log(`방송 듣는중 ${address.address}:${address.port}`)
+
+    udpSock.setBroadcast(true);
+
+    udpSock.send('im client', PORT, BROADCAST_ADDR, (err) => {
+        if(err) console.error('send 에러', err);
+        else console.log('전송 완료')
+    })
 })
 
 udpSock.on('message', (message, rinfo) => {
