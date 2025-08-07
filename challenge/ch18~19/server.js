@@ -1,6 +1,6 @@
 import net from 'node:net';
 import dgram from 'node:dgram';
-import { requestHandler, sessionOut, sessionReg } from './requestHandler.js';
+import { requestHandler } from './requestHandler.js';
 
 const PORT = 2025;
 const UDP_PORT = 41234;
@@ -10,7 +10,7 @@ udp.bind(() => udp.setBroadcast(true));
 const server = net.createServer(socket => {
     socket.setEncoding('utf8');
 
-    sessionReg(socket);
+    requestHandler(socket, 'connect');
     console.log('connected', socket.remoteAddress, socket.remotePort);
 
     socket.on('data', data => {
@@ -19,7 +19,8 @@ const server = net.createServer(socket => {
         socket.write(`데이터 수신: ${data}`)
 
         try {
-            requestHandler(socket, data);
+            const announce = requestHandler(socket, data);
+            socket.write('\n' + announce + '\n');
         } catch (error) {
             console.log(`에러 발생: ${error.message}`)
             socket.write(`에러 발생: ${error.message}`)
@@ -27,13 +28,13 @@ const server = net.createServer(socket => {
     })
 
     socket.on('end', () => {
-        sessionOut(socket)
+        requestHandler(socket, 'disconnected')
     })
     socket.on('close', () => {
-        sessionOut(socket)
+        requestHandler(socket, 'disconnected')
     })
     socket.on('error', () => {
-        sessionOut(socket)
+        requestHandler(socket, 'disconnected')
     })
 })
 
