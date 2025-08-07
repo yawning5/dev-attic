@@ -4,8 +4,12 @@ import { requestHandler } from './requestHandler.js';
 
 const PORT = 2025;
 const UDP_PORT = 41234;
-const udp = dgram.createSocket('udp4');
-udp.bind(() => udp.setBroadcast(true));
+const BROADCAST_ADDR = '255.255.255.255';
+const udpSock = dgram.createSocket('udp4');
+
+udpSock.bind(() => {
+    udpSock.setBroadcast(true)
+});
 
 const server = net.createServer(socket => {
     socket.setEncoding('utf8');

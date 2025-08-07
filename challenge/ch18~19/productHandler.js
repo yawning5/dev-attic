@@ -28,11 +28,11 @@ export function addGoods(content) {
         product = {
             id: goodsList.length + 1,
             name: name,
-            stock: count
+            stock: +count
         };
         goodsList.push(product);
     } else if (product) {
-        product.stock = product.stock + count;
+        product.stock = product.stock + +count;
     }
 
     return (`${id} ${name} total = ${product.stock}`);
@@ -44,7 +44,7 @@ export function buyGoods(content) {
     if (!product) throw new Error(`없는 상품`);
     if (product.stock < count) throw new Error(`재고 부족`);
 
-    product.stock = product.stock - count;
+    product.stock = product.stock - +count;
     return (`${id} ${product.name} *${count} purchased`);
 }
 

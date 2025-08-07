@@ -1,3 +1,4 @@
+import dgram from 'dgram';
 import { createSocketClient } from './createSocket.js';
 
 createSocketClient({
@@ -6,6 +7,26 @@ createSocketClient({
         sock.write(input);
     }
 })
+
+const PORT = 41234;
+
+const udpSock = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+
+udpSock.on('listening', () => {
+    const address = udpSock.address();
+    console.log(`방송 듣는중 ${address.address}:${address.port}`)
+})
+
+udpSock.on('message', (message, rinfo) => {
+    console.log(
+        `${rinfo.address}:${rinfo.port} 로부터온 메세지 -> ${message}`
+    )
+})
+
+udpSock.bind(PORT, () => {
+    console.log(`socket bound for receiving`)
+})
+
 
 // const sock = net.connect(2025);
 
