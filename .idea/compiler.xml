@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="first" options="-parameters" />
+      <module name="first.main" options="-parameters" />
+      <module name="first.test" options="-parameters" />
+      <module name="second" options="-parameters" />
+      <module name="second.main" options="-parameters" />
+      <module name="second.test" options="-parameters" />
+      <module name="server" options="-parameters" />
+      <module name="server.main" options="-parameters" />
+      <module name="server.test" options="-parameters" />
+    </option>
+  </component>
+</project>
