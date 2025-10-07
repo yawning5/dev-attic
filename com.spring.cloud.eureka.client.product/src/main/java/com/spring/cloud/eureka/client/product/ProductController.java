@@ -11,8 +11,8 @@ public class ProductController {
     @Value("${server.port}")
     private  String serverPort;
 
-    @GetMapping("/product/{id}")
-    private String getProduct(@PathVariable("id") String id) {
-        return ("Product " + id + "info!!! From prot : " + serverPort);
+    @GetMapping("/product")
+    private String getProduct() {
+        return ("Product info!!! From prot : " + serverPort);
     }
 }
