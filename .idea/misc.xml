@@ -3,6 +3,7 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/com.spring-cloud.eureka.client.config" />
+    <file type="web" url="file://$PROJECT_DIR$/com.spring.cloud.eureka.client.gateway" />
     <file type="web" url="file://$PROJECT_DIR$/com.spring.cloud.eureka.client.order" />
     <file type="web" url="file://$PROJECT_DIR$/com.spring.cloud.eureka.client.product" />
   </component>
