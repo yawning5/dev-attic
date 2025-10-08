@@ -16,6 +16,15 @@
       <module name="auth" options="-parameters" />
       <module name="auth.main" options="-parameters" />
       <module name="auth.test" options="-parameters" />
+      <module name="com.spring-cloud.eureka.client.auth" options="-parameters" />
+      <module name="com.spring-cloud.eureka.client.auth.main" options="-parameters" />
+      <module name="com.spring-cloud.eureka.client.auth.test" options="-parameters" />
+      <module name="com.spring-cloud.eureka.client.config" options="-parameters" />
+      <module name="com.spring-cloud.eureka.client.config.main" options="-parameters" />
+      <module name="com.spring-cloud.eureka.client.config.test" options="-parameters" />
+      <module name="com.spring.cloud.eureka.client.gateway" options="-parameters" />
+      <module name="com.spring.cloud.eureka.client.gateway.main" options="-parameters" />
+      <module name="com.spring.cloud.eureka.client.gateway.test" options="-parameters" />
       <module name="config" options="-parameters" />
       <module name="config.main" options="-parameters" />
       <module name="config.test" options="-parameters" />
