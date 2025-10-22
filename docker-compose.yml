@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  service-a:
+    image: image-service-a
+    ports:
+      - "18080:8080"
+    environment:
+      - SERVICE_B_URL=http://service-b:8080
+    depends_on:
+      - service-b
+
+  service-b:
+    image: image-service-b
+    ports:
+      - "18081:8080"
+
+# 사용자 정의 네트워크 설정을 안 하면 DNS 기반의 도커 컨테이너 호출이 불가능하지 않는가?
+# Compose 로 띄우게 되면 Compose 가 자동으로 프로젝트 전용 user-defined 네트워크"를 하나 생성함
+networks:
+  default:
+    driver: bridge
