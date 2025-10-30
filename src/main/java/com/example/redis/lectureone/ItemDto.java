@@ -1,4 +1,4 @@
-package com.example.redis;
+package com.example.redis.lectureone;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;

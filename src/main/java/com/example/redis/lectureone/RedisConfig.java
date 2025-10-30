@@ -1,4 +1,4 @@
-package com.example.redis;
+package com.example.redis.lectureone;
 
 
 import org.springframework.context.annotation.Bean;

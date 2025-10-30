@@ -1,5 +1,6 @@
 package com.example.redis;
 
+import com.example.redis.lectureone.ItemDto;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
