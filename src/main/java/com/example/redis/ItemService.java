@@ -23,14 +23,19 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    public ItemDto create(ItemDto dto) {
-        return ItemDto.fromEntity(itemRepository.save(Item.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .build()));
+    // 이 메서드의 결과는 캐싱이 가능하다
+    // cacheNames: 요 메서드로 인해서 만들어질 캐시를 지칭하는 이름
+    // key: 캐시 데이터를 구분하기 위해 활용하는 값
+    @Cacheable(cacheNames = "itemCache", key = "args[0]")
+    public ItemDto readOne(Long id) {
+        log.info("Read One: {}", id);
+        return itemRepository.findById(id)
+                .map(ItemDto::fromEntity)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    @Cacheable(cacheNames = "itemAllCache", key = "methodName")
     public List<ItemDto> readAll() {
         return itemRepository.findAll()
                 .stream()
@@ -38,11 +43,12 @@ public class ItemService {
                 .toList();
     }
 
-    public ItemDto readOne(Long id) {
-        return itemRepository.findById(id)
-                .map(ItemDto::fromEntity)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public ItemDto create(ItemDto dto) {
+        return ItemDto.fromEntity(itemRepository.save(Item.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .build()));
     }
 
     public ItemDto update(Long id, ItemDto dto) {
