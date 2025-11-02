@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -28,6 +30,7 @@ public class ItemService {
     // key: 캐시 데이터를 구분하기 위해 활용하는 값
     @Cacheable(cacheNames = "itemCache", key = "args[0]")
     public ItemDto readOne(Long id) {
+        // 캐시 힛 상황일때는 메서드가 실행이 안 된다
         log.info("Read One: {}", id);
         return itemRepository.findById(id)
                 .map(ItemDto::fromEntity)
@@ -43,6 +46,7 @@ public class ItemService {
                 .toList();
     }
 
+    @CachePut(cacheNames = "itemCache", key = "#result.id")
     public ItemDto create(ItemDto dto) {
         return ItemDto.fromEntity(itemRepository.save(Item.builder()
                 .name(dto.getName())
@@ -51,6 +55,9 @@ public class ItemService {
                 .build()));
     }
 
+    @CachePut(cacheNames = "itemCache", key = "args[0]")
+//    @CacheEvict(cacheNames = "itemAllCache", allEntries = true)
+    @CacheEvict(cacheNames = "itemAllCache", key = "'readAll'")
     public ItemDto update(Long id, ItemDto dto) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -63,5 +70,16 @@ public class ItemService {
     public void delete(Long id) {
         itemRepository.deleteById(id);
     }
+
+    @Cacheable(
+        cacheNames = "itemSearchCache",
+        key = "{ args[0], args[1].pageNumber, args[1].pageSize }"
+    )
+    public Page<ItemDto> searchByName(String query, Pageable pageable) {
+        return itemRepository.findAllByNameContains(query, pageable)
+            .map(ItemDto::fromEntity);
+    }
+
+
 
 }
