@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.40/398c6d2d7c42c96b65e78d2ddc9be0058c163453/lombok-1.18.40.jar" />
+        </processorPath>
+        <module name="order.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="gateway_main" target="17" />
+      <module name="gateway_test" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="com.spring-cloud.eureka.client.config" options="-parameters" />
+      <module name="com.spring.cloud.eureka.client.gateway" options="-parameters" />
+      <module name="com.spring.cloud.eureka.client.gateway.main" options="-parameters" />
+      <module name="com.spring.cloud.eureka.client.gateway.test" options="-parameters" />
+      <module name="config.main" options="-parameters" />
+      <module name="config.test" options="-parameters" />
+      <module name="first" options="-parameters" />
+      <module name="first.main" options="-parameters" />
+      <module name="first.test" options="-parameters" />
+      <module name="order" options="-parameters" />
+      <module name="order.main" options="-parameters" />
+      <module name="order.test" options="-parameters" />
+      <module name="product" options="-parameters" />
+      <module name="product.main" options="-parameters" />
+      <module name="product.test" options="-parameters" />
+      <module name="second" options="-parameters" />
+      <module name="second.main" options="-parameters" />
+      <module name="second.test" options="-parameters" />
+      <module name="server" options="-parameters" />
+      <module name="server.main" options="-parameters" />
+      <module name="server.test" options="-parameters" />
+    </option>
+  </component>
+</project>
