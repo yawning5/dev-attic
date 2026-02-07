@@ -1,0 +1,86 @@
+{
+    "compatibilities": [
+        "EC2",
+        "MANAGED_INSTANCES",
+        "FARGATE"
+    ],
+    "containerDefinitions": [
+        {
+            "cpu": 0,
+            "environment": [],
+            "environmentFiles": [],
+            "essential": true,
+            "image": "559050226268.dkr.ecr.ap-northeast-2.amazonaws.com/group-17252043/project-01",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/project-01-task",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "ap-northeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "mountPoints": [],
+            "name": "project-01-container",
+            "portMappings": [
+                {
+                    "appProtocol": "http",
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "name": "project-01-container-8080-tcp",
+                    "protocol": "tcp"
+                }
+            ],
+            "systemControls": [],
+            "ulimits": [],
+            "volumesFrom": []
+        }
+    ],
+    "cpu": "1024",
+    "executionRoleArn": "arn:aws:iam::559050226268:role/ecsTaskExecutionRole",
+    "family": "project-01-task",
+    "memory": "3072",
+    "networkMode": "awsvpc",
+    "placementConstraints": [],
+    "registeredAt": "2025-10-23T05:49:17.347Z",
+    "registeredBy": "arn:aws:iam::559050226268:root",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "revision": 1,
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "status": "ACTIVE",
+    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:559050226268:task-definition/project-01-task:1",
+    "volumes": [],
+    "tags": []
+}
