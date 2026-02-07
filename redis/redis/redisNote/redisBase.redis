@@ -1,0 +1,142 @@
+SET user:email alex@example.com
+GET user:email
+
+-- 정수가 문자열로 저장된 경우
+-- INCR, DECR: ++, --
+SET user:count 1
+GET user:count
+INCR user:count
+GET user:count
+DECR user:count
+GET user:count
+
+-- MSET, MGET
+MSET user:name alex user:email alex@example.com
+MGET user:name user:email
+
+-- 덮어씌워 진다
+MSET user:name bred user:email bred@example.com
+MGET user:name user:email
+
+-- 문자열 -> toCharArray(), toByteArray()
+-- 문자열 -> 이미지, 음성, 영상, 파일, HTML (512MB)
+-- Simple == Redis 철학
+
+
+
+
+-- List: Linked List
+-- 스택, 큐
+-- Push, Pop -> 왼쪽(L)이냐 오른쪽(R)이냐
+LPUSH user:list alex
+LPUSH user:list brad
+RPUSH user:list chad
+RPUSH user:list dave
+
+LPOP user:list
+RPOP user:list
+
+-- LLEN: 리스트의 크기
+LLEN user:list
+-- 크기보다 더 큰 숫자
+LRANGE user:list 0 3
+LRANGE user:list 0 1000
+-- 음수 index
+LRANGE user:list 0 -1
+LRANGE user:list 0 -2
+-- end < start (빈 리스트)
+LRANGE user:list 1 0
+-- Worker Queue: 여러 Worker Application 에게 일을 분배하기 위해
+-- Timeline: X (구 트위터)의 타임라인
+
+
+-- 명령어가 자료형에 따라서 정해져있다 GET(문자열), POP(리스트)
+-- Key 에 저장된 자료형이 다를 경우 오류가 발생한다.
+GET user:list
+LPOP user:name
+
+
+-- Set: (문자열의) 집합
+-- 중복을 허용하지 않는다
+SADD user:java alex
+SADD user:java brad
+SADD user:java chad
+
+SREM user:java alex
+
+SISMEMBER user:java brad
+SISMEMBER user:java dave
+
+SMEMBERS user:java
+SCARD user:java
+
+-- 교집합 합집합
+SADD user:python alex
+SADD user:python dave
+SADD user:java alex
+
+SINTER user:java user:python
+SUNION user:java user:python
+SINTERCARD 2 user:java user:python
+-- 중복을 허용하지 않는 방문자 수 세기
+-- URL 을 키로 만들고 사용자 ID 를 넣어준다.
+-- 인증 토큰 블랙리스트
+-- SISMEMBER: O(1)
+
+-- Hash
+-- Field - Value Pair
+-- Map<Str, Map<Str, Str>>
+-- 내부 Map<Str, Str> 이것이 Hash
+-- 외부 Map 이 Redis 영역
+HSET user:alex name alex age 25
+HSET user:alex major CSE
+
+HGET user:alex name
+HGET user:alex age
+HMGET user:alex age major
+HGETALL user:alex
+
+HKEYS user:alex
+HLEN user:alex
+
+-- 장바구니, 세션정보
+HSET cart:alex computer 1 mouse 2 keyboard 10
+
+
+
+-- Sorted Set
+-- 정렬된 집합: 중복되지 않는 데이터 + 점수
+-- ZADD key score value
+ZADD user:ranks 10 alex
+ZADD user:ranks 9 brad 11 chad
+ZADD user:ranks 8 dave
+ZADD user:ranks 9.5 eric
+ZINCRBY user:ranks 2 alex
+
+ZRANK user:ranks alex
+ZRANK user:ranks eric
+ZRANK user:ranks dave
+ZREVRANK user:ranks alex
+
+ZRANGE user:ranks 0 3
+ZREVRANGE user:ranks 0 2
+ZADD user:ranks 14 alex
+-- 순위표(리더보드), Rate Limiter(과도한 요청 거부)
+
+SET somekey "to be deleted"
+DEL somekey
+DEL user:list
+DEL cart:alex
+
+-- EXPIRE
+SET expirekey "to be expried"
+EXPIRE expirekey 50
+EXPIRE user:alex 10
+-- EXPIRETIME: 만료될 시간을 UNIX Timestmap 로 반환한다
+EXPIRETIME expirekey
+
+-- KEYS: Key 를 검색한다.
+KEYS *
+
+-- FLUSHDB
+FLUSHDB
