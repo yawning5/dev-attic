@@ -1,0 +1,17 @@
+spring:
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enables: false
+  freemarker:
+    cache: false
+    template-loader-path: classpath:/templates/
+    suffix: .ftl
+  profiles:
+    active: local
+  redis:
+    host: localhost
+    port: 6379
+  jwt:
+    secret: asdfasdfasdfasdfasdfasdfasdfyugtdffdxsdfaszgfxcfgxdszeszrxtdrdxeszqwearqwa
